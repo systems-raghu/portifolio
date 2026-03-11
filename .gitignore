@@ -1,2 +1,5 @@
-echo node_modules/ >> .gitignore
-echo dist/ >> .gitignore
+cat > .gitignore << 'EOF'
+node_modules/
+dist/
+.env
+EOF
