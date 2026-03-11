@@ -103,6 +103,8 @@ function Pill({ href, children, dark = false }) {
 export default function App() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [sent, setSent] = useState(false);
+  const [submitError, setSubmitError] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [activeSection, setActiveSection] = useState("hero");
   const [progress, setProgress] = useState(0);
   const sectionIds = useMemo(() => navItems.map((n) => n.id), []);
@@ -150,10 +152,33 @@ export default function App() {
     return () => revealObserver.disconnect();
   }, []);
 
-  function submitForm(event) {
+  async function submitForm(event) {
     event.preventDefault();
-    event.currentTarget.reset();
-    setSent(true);
+    const form = event.currentTarget;
+    const formData = new FormData(form);
+
+    setIsSubmitting(true);
+    setSubmitError("");
+    setSent(false);
+
+    try {
+      const response = await fetch("https://formspree.io/f/mjgawkwk", {
+        method: "POST",
+        body: formData,
+        headers: { Accept: "application/json" }
+      });
+
+      if (!response.ok) {
+        throw new Error("Submission failed");
+      }
+
+      form.reset();
+      setSent(true);
+    } catch (error) {
+      setSubmitError("Could not send your message right now. Please try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
   }
 
   function handleHeroMove(event) {
@@ -427,11 +452,13 @@ export default function App() {
               />
               <button
                 type="submit"
+                disabled={isSubmitting}
                 className="action-btn surface-soft w-full rounded-full bg-[#171717] px-5 py-3 text-[13px] font-medium text-white transition-colors duration-300 hover:bg-black sm:w-auto"
               >
-                <span>Send Inquiry</span>
+                <span>{isSubmitting ? "Sending..." : "Send Inquiry"}</span>
               </button>
               {sent && <p className="text-center text-[12px] text-[#4f4f4f]">Message sent. I usually reply within 4 hours.</p>}
+              {submitError && <p className="text-center text-[12px] text-[#8b2f2f]">{submitError}</p>}
             </form>
           </section>
         </main>
