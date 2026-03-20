@@ -1,4 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
+import { BrowserRouter, Routes, Route, useParams, Link, useLocation } from "react-router-dom";
+import { niches } from "./data/niches";
 
 const navItems = [
   { id: "hero", label: "Home" },
@@ -64,7 +66,7 @@ const proofCards = [
 ];
 
 const trustLine = ["Founders", "Coaches", "B2B Teams", "SaaS Teams", "India", "UAE", "Global"];
-const TEXTURE_IMAGE = "https://i.pinimg.com/736x/f4/89/b4/f489b4df3c9b3f48de6541ea675d73f8.jpg";
+const TEXTURE_IMAGE = "/assets/texture.jpg";
 
 const textureStyle = {
   backgroundImage: [
@@ -87,20 +89,105 @@ const textureReflectionStyle = {
 };
 
 function Pill({ href, children, dark = false }) {
+  if (href.startsWith("#") || href.startsWith("mailto:") || href.startsWith("https:")) {
+    return (
+      <a
+        href={href}
+        className={[
+          "action-btn surface-soft font-basis inline-flex min-h-[40px] w-full items-center justify-center rounded-full px-5 py-2 text-[12px] font-medium transition-colors duration-300 sm:w-auto",
+          dark ? "bg-[#171717] text-white hover:bg-black" : "bg-[#ececec] text-[#171717] hover:bg-[#e2e2e2]"
+        ].join(" ")}
+      >
+        <span>{children}</span>
+      </a>
+    );
+  }
   return (
-    <a
-      href={href}
+    <Link
+      to={href}
       className={[
         "action-btn surface-soft font-basis inline-flex min-h-[40px] w-full items-center justify-center rounded-full px-5 py-2 text-[12px] font-medium transition-colors duration-300 sm:w-auto",
         dark ? "bg-[#171717] text-white hover:bg-black" : "bg-[#ececec] text-[#171717] hover:bg-[#e2e2e2]"
       ].join(" ")}
     >
       <span>{children}</span>
-    </a>
+    </Link>
   );
 }
 
-export default function App() {
+function SolutionPage() {
+  const { nicheId } = useParams();
+  const niche = niches.find((n) => n.id === nicheId);
+
+  useEffect(() => {
+    if (niche) {
+      document.title = `${niche.title} | raghu.systems`;
+      const metaDesc = document.querySelector('meta[name="description"]');
+      if (metaDesc) metaDesc.setAttribute("content", niche.description);
+    }
+    window.scrollTo(0, 0);
+
+    return () => {
+      document.title = "raghu.systems — AI Systems Builder";
+      const metaDesc = document.querySelector('meta[name="description"]');
+      if (metaDesc) metaDesc.setAttribute("content", "AI systems, automation workflows, high-converting websites, and growth infrastructure built for founders, coaches, B2B teams, and SaaS.");
+    };
+  }, [niche]);
+
+  if (!niche) {
+    return (
+      <div className="flex min-h-screen flex-col items-center justify-center">
+        <h1 className="text-2xl font-bold">Niche not found</h1>
+        <Link to="/" className="mt-4 text-[#171717] underline">Back to home</Link>
+      </div>
+    );
+  }
+
+  return (
+    <div className="font-basis min-h-screen bg-[#d8d8d8] px-3 py-4 text-[#171717] md:px-8 md:py-6">
+      <div className="surface-card mx-auto w-full max-w-[980px] rounded-[28px] bg-[#efefef] p-3 sm:rounded-[32px] sm:p-4 md:rounded-[38px] md:p-7" style={textureStyle}>
+        <header className="sticky top-2 z-40">
+           <div className="nav-glass flex items-center justify-between rounded-[18px] border border-white/55 bg-[#f6f6f6]/72 px-3 py-2 backdrop-blur-xl">
+             <Link to="/" className="text-[10px] text-[#6d6d6d] uppercase tracking-wider">raghu.systems</Link>
+             <Link to="/" className="nav-chip surface-soft rounded-full bg-[#171717] px-3 py-1.5 text-[11px] text-white">Back Home</Link>
+           </div>
+        </header>
+
+        <main className="mt-8 space-y-8">
+          <section className="surface-card rounded-[24px] bg-[#f5f5f5] px-4 py-12 md:px-12 md:py-16" style={textureStyle}>
+            <div className="mx-auto max-w-[720px] text-center">
+              <span className="mb-4 inline-block rounded-full bg-[#e5e5e5] px-3 py-1 text-[10px] text-[#595959] uppercase tracking-widest">{niche.name}</span>
+              <h1 className="text-[34px] font-medium leading-[1.1] tracking-tight md:text-[54px]">{niche.title}</h1>
+              <p className="mt-6 text-[16px] leading-relaxed text-[#666] md:text-[18px]">{niche.content}</p>
+              <div className="mt-8">
+                <Pill href="/#contact" dark>Start for your {niche.name}</Pill>
+              </div>
+            </div>
+          </section>
+
+          <section className="grid gap-4 md:grid-cols-2">
+            {niche.services.map((svc, i) => (
+              <div key={i} className="surface-soft rounded-[20px] bg-white/50 p-6 backdrop-blur-sm">
+                <span className="text-[10px] text-[#888] font-mono">SERVICE 0{i+1}</span>
+                <h3 className="mt-2 text-xl font-medium">{svc}</h3>
+              </div>
+            ))}
+          </section>
+
+          <section className="surface-card rounded-[24px] bg-[#171717] px-6 py-12 text-white text-center">
+            <h2 className="text-2xl md:text-3xl font-medium">Ready to automate?</h2>
+            <p className="mt-4 text-white/70">Let's build your {niche.name} growth infrastructure.</p>
+            <div className="mt-8">
+               <Pill href="/#contact">Get Started</Pill>
+            </div>
+          </section>
+        </main>
+      </div>
+    </div>
+  );
+}
+
+function HomePage() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [sent, setSent] = useState(false);
   const [submitError, setSubmitError] = useState("");
@@ -108,6 +195,17 @@ export default function App() {
   const [activeSection, setActiveSection] = useState("hero");
   const [progress, setProgress] = useState(0);
   const sectionIds = useMemo(() => navItems.map((n) => n.id), []);
+  const location = useLocation();
+
+  useEffect(() => {
+    if (location.hash) {
+      const id = location.hash.replace("#", "");
+      const element = document.getElementById(id);
+      if (element) {
+        element.scrollIntoView({ behavior: "smooth" });
+      }
+    }
+  }, [location]);
 
   useEffect(() => {
     const onScroll = () => {
@@ -332,6 +430,7 @@ export default function App() {
                   <span
                     key={item}
                     className="rounded-full border border-[#dcdcdc] bg-white/75 px-2.5 py-1.5 text-[10px] font-semibold tracking-wide text-[#2c2c2c] shadow-[inset_0_1px_0_rgba(255,255,255,0.8)] sm:px-3 sm:text-[11px]"
+                    aria-label={`Trusted by ${item}`}
                   >
                     {item}
                   </span>
@@ -355,6 +454,20 @@ export default function App() {
                   <p className="mt-2 text-[14px] leading-relaxed text-[#666]">{card.text}</p>
                 </article>
               ))}
+            </div>
+          </section>
+
+          <section className="reveal surface-card rounded-[24px] bg-[#f8f8f8] px-4 py-8 sm:rounded-[28px] sm:px-5 sm:py-10 md:rounded-[34px] md:px-10 md:py-12" style={textureReflectionStyle}>
+            <div className="mx-auto max-w-[680px] text-center">
+              <p className="font-['Space_Mono'] text-[10px] uppercase tracking-[0.22em] text-[#6a6a6a]">Solutions for you</p>
+              <h3 className="mt-3 text-[26px] font-medium leading-tight tracking-tight text-[#1f1f1f] md:text-[38px]">Select your niche.</h3>
+              <div className="mt-8 flex flex-wrap justify-center gap-3">
+                {niches.map(niche => (
+                  <Pill key={niche.id} href={`/solutions/${niche.id}`}>
+                    {niche.name}
+                  </Pill>
+                ))}
+              </div>
             </div>
           </section>
 
@@ -382,7 +495,7 @@ export default function App() {
             <div className="mt-8 grid gap-3 md:grid-cols-3">
               {proofCards.map((item, idx) => (
                 <article key={item.title} className={`interactive-card surface-soft reveal stagger-${(idx % 4) + 1} rounded-[24px] border border-[#e7e7e7] bg-[#fbfbfb] p-5 transition-colors duration-300 hover:bg-white`}>
-                  <div className="mb-4 h-[130px] rounded-[18px] bg-[#e4e4e4]" />
+                  <div className="mb-4 h-[130px] w-full rounded-[18px] bg-[#e4e4e4]" aria-hidden="true" role="presentation" />
                   <div className="font-['Space_Mono'] text-[10px] uppercase tracking-[0.12em] text-[#6a6a6a]">{item.status}</div>
                   <h4 className="mt-2 text-[20px] font-medium text-[#212121]">{item.title}</h4>
                   <p className="mt-2 text-[13px] text-[#656565]">{item.desc}</p>
@@ -466,7 +579,7 @@ export default function App() {
         <footer className="mt-8 flex flex-wrap items-center justify-between gap-3 px-2 pb-2 text-[10px] text-[#6b6b6b]">
           <span>&copy; 2026 raghu.systems</span>
           <div className="flex items-center gap-3">
-            <a href="#hero" className="transition-colors hover:text-[#222]">Home</a>
+            <Link to="/" className="transition-colors hover:text-[#222]">Home</Link>
             <a href="#services" className="transition-colors hover:text-[#222]">Services</a>
             <a href="#work" className="transition-colors hover:text-[#222]">Work</a>
           </div>
@@ -476,3 +589,13 @@ export default function App() {
   );
 }
 
+export default function App() {
+  return (
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<HomePage />} />
+        <Route path="/solutions/:nicheId" element={<SolutionPage />} />
+      </Routes>
+    </BrowserRouter>
+  );
+}
