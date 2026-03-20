@@ -131,7 +131,47 @@ function SolutionPage() {
       document.title = "raghu.systems — AI Systems Builder";
       const metaDesc = document.querySelector('meta[name="description"]');
       if (metaDesc) metaDesc.setAttribute("content", "AI systems, automation workflows, high-converting websites, and growth infrastructure built for founders, coaches, B2B teams, and SaaS.");
+      const dynamicSchema = document.getElementById("dynamic-schema");
+      if (dynamicSchema) dynamicSchema.remove();
     };
+  }, [niche]);
+
+  useEffect(() => {
+    if (niche) {
+      const existing = document.getElementById("dynamic-schema");
+      if (existing) existing.remove();
+
+      const script = document.createElement("script");
+      script.id = "dynamic-schema";
+      script.type = "application/ld+json";
+
+      const schemaData = {
+        "@context": "https://schema.org",
+        "@graph": [
+          {
+            "@type": "BreadcrumbList",
+            "itemListElement": [
+              { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://raghu.systems/" },
+              { "@type": "ListItem", "position": 2, "name": niche.name, "item": `https://raghu.systems/solutions/${niche.id}` }
+            ]
+          }
+        ]
+      };
+
+      if (niche.faqs) {
+        schemaData["@graph"].push({
+          "@type": "FAQPage",
+          "mainEntity": niche.faqs.map(faq => ({
+            "@type": "Question",
+            "name": faq.q,
+            "acceptedAnswer": { "@type": "Answer", "text": faq.a }
+          }))
+        });
+      }
+
+      script.text = JSON.stringify(schemaData);
+      document.head.appendChild(script);
+    }
   }, [niche]);
 
   if (!niche) {
@@ -148,8 +188,12 @@ function SolutionPage() {
       <div className="surface-card mx-auto w-full max-w-[980px] rounded-[28px] bg-[#efefef] p-3 sm:rounded-[32px] sm:p-4 md:rounded-[38px] md:p-7" style={textureStyle}>
         <header className="sticky top-2 z-40">
            <div className="nav-glass flex items-center justify-between rounded-[18px] border border-white/55 bg-[#f6f6f6]/72 px-3 py-2 backdrop-blur-xl">
-             <Link to="/" className="text-[10px] text-[#6d6d6d] uppercase tracking-wider">raghu.systems</Link>
-             <Link to="/" className="nav-chip surface-soft rounded-full bg-[#171717] px-3 py-1.5 text-[11px] text-white">Back Home</Link>
+             <div className="flex items-center gap-2 overflow-hidden">
+               <Link to="/" className="text-[10px] text-[#6d6d6d] uppercase tracking-wider shrink-0">Home</Link>
+               <span className="text-[10px] text-[#aaa]">/</span>
+               <span className="text-[10px] text-[#171717] font-medium truncate uppercase tracking-wider">{niche.name}</span>
+             </div>
+             <Link to="/" className="nav-chip surface-soft rounded-full bg-[#171717] px-3 py-1.5 text-[11px] text-white shrink-0">Back Home</Link>
            </div>
         </header>
 
@@ -173,6 +217,20 @@ function SolutionPage() {
               </div>
             ))}
           </section>
+
+          {niche.faqs && (
+            <section className="surface-card rounded-[24px] bg-[#f8f8f8] px-6 py-12 md:px-12">
+              <h2 className="text-center text-2xl font-medium md:text-3xl">Frequently Asked Questions</h2>
+              <div className="mt-8 grid gap-4 md:grid-cols-2">
+                {niche.faqs.map((faq, i) => (
+                  <div key={i} className="surface-soft rounded-[20px] bg-white p-6">
+                    <h3 className="text-lg font-medium">Q: {faq.q}</h3>
+                    <p className="mt-2 text-sm text-[#666]">{faq.a}</p>
+                  </div>
+                ))}
+              </div>
+            </section>
+          )}
 
           <section className="surface-card rounded-[24px] bg-[#171717] px-6 py-12 text-white text-center">
             <h2 className="text-2xl md:text-3xl font-medium">Ready to automate?</h2>
@@ -302,6 +360,7 @@ function HomePage() {
 
   return (
     <div className="font-basis min-h-screen bg-[#d8d8d8] px-3 py-4 text-[#171717] md:px-8 md:py-6">
+      <h1 className="sr-only">raghu.systems — AI Systems Builder</h1>
       <div className="ambient-rail ambient-left" aria-hidden="true">
         <span className="ambient-line" />
         <span className="ambient-dot ambient-dot-a" />
@@ -464,7 +523,7 @@ function HomePage() {
               <div className="mt-8 flex flex-wrap justify-center gap-3">
                 {niches.map(niche => (
                   <Pill key={niche.id} href={`/solutions/${niche.id}`}>
-                    {niche.name}
+                    <span className="font-semibold tracking-wide">{niche.name}</span>
                   </Pill>
                 ))}
               </div>
