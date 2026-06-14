@@ -52,6 +52,20 @@ const proofCards = [
     cta: "Watch Video"
   },
   {
+    title: "AI Dental Assistant System",
+    desc: "Automated booking and patient inquiry system for dental clinics. Built for Swarali.",
+    status: "Live Project",
+    href: "https://swarali.netlify.app",
+    cta: "Visit Site"
+  },
+  {
+    title: "Radsfinds Tech Platform",
+    desc: "A high-performance tech discovery platform for gadgets and smart hacks.",
+    status: "Live Project",
+    href: "https://radsfinds.netlify.app",
+    cta: "Visit Site"
+  },
+  {
     title: "AI Lead Generation System",
     desc: "This build is currently in progress. Full case study dropping soon.",
     status: "In Process"
