@@ -49,6 +49,7 @@ const proofCards = [
     desc: "Live project: watch the full workflow to generate high-converting AI images fast.",
     status: "Live Project",
     href: "https://youtu.be/tFLkRRIZuCY?si=q_Yy3uEXPTsFWYB6",
+    previewUrl: "https://www.youtube.com/embed/tFLkRRIZuCY",
     cta: "Watch Video"
   },
   {
@@ -56,6 +57,7 @@ const proofCards = [
     desc: "Automated booking and patient inquiry system for dental clinics. Built for Swarali.",
     status: "Live Project",
     href: "https://swarali.netlify.app",
+    previewUrl: "https://swarali.netlify.app",
     cta: "Visit Site"
   },
   {
@@ -63,6 +65,7 @@ const proofCards = [
     desc: "A high-performance tech discovery platform for gadgets and smart hacks.",
     status: "Live Project",
     href: "https://radsfinds.netlify.app",
+    previewUrl: "https://radsfinds.netlify.app",
     cta: "Visit Site"
   },
   {
@@ -396,7 +399,18 @@ export default function App() {
             <div className="mt-8 grid gap-3 md:grid-cols-3">
               {proofCards.map((item, idx) => (
                 <article key={item.title} className={`interactive-card surface-soft reveal stagger-${(idx % 4) + 1} rounded-[24px] border border-[#e7e7e7] bg-[#fbfbfb] p-5 transition-colors duration-300 hover:bg-white`}>
-                  <div className="mb-4 h-[130px] rounded-[18px] bg-[#e4e4e4]" />
+                  <div className="relative mb-4 h-[130px] overflow-hidden rounded-[18px] bg-[#e4e4e4]">
+                    {item.previewUrl ? (
+                      <iframe
+                        src={item.previewUrl}
+                        className="pointer-events-none absolute inset-0 h-full w-full border-0"
+                        title={item.title}
+                        loading="lazy"
+                      />
+                    ) : (
+                      <div className="h-full w-full bg-[#e4e4e4]" />
+                    )}
+                  </div>
                   <div className="font-['Space_Mono'] text-[10px] uppercase tracking-[0.12em] text-[#6a6a6a]">{item.status}</div>
                   <h4 className="mt-2 text-[20px] font-medium text-[#212121]">{item.title}</h4>
                   <p className="mt-2 text-[13px] text-[#656565]">{item.desc}</p>
